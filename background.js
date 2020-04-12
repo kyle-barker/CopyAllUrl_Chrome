@@ -101,10 +101,6 @@ Action = {
 			
 			// Indique à la popup le nombre d'URL copiées, pour affichage dans la popup
 			chrome.runtime.sendMessage({type: "copy", copied_url: tabs.length});
-			
-			// Tracking event
-			_gaq.push(['_setCustomVar', 3, 'ActionMeta', opt.gaEvent.actionMeta]);
-			_gaq.push(['_trackEvent', 'Action', opt.gaEvent.action, opt.gaEvent.label, tabs.length]);
 		});
 	},
 	
@@ -153,10 +149,6 @@ Action = {
 		
 		// Indique à la popup de se fermer
 		chrome.runtime.sendMessage({type: "paste"});
-		
-		// Tracking event
-		_gaq.push(['_setCustomVar', 3, 'ActionMeta', opt.gaEvent.actionMeta]);
-		_gaq.push(['_trackEvent', 'Action', opt.gaEvent.action, opt.gaEvent.label, urlList.length]);
 	}
 };
 
@@ -305,9 +297,6 @@ chrome.runtime.onInstalled.addListener(function(details){
 	// Mise à jour badge
 	UpdateManager.setBadge();
 	
-	// Tracking event
-	_gaq.push(['_trackEvent', 'Lifecycle', 'Update', details.previousVersion]);
-	
 	// Affichage de la notification
 	chrome.notifications.create("cpau_update_notification", {
 		type: "basic",
@@ -317,7 +306,6 @@ chrome.runtime.onInstalled.addListener(function(details){
 	}, function(notificationId){});
 	chrome.notifications.onClicked.addListener(function(notificationId){
 		if (notificationId == "cpau_update_notification") {
-			_gaq.push(['_trackEvent', 'Internal link', 'Notification', 'http://finalclap.github.io/CopyAllUrl_Chrome/']);
 			chrome.tabs.create({url: 'http://finalclap.github.io/CopyAllUrl_Chrome/'});
 		}
 	});
@@ -327,13 +315,6 @@ chrome.runtime.onInstalled.addListener(function(details){
 * Fonctions utilitaires web analytics
 */
 AnalyticsHelper = {
-	/** Fonction qui récupère la clé de l'extension, pour récupérer des infos dessus (comme sa version) */
-	getChromeExtensionKey: function(){
-		var url = chrome.extension.getURL('stop');
-		var matches = chrome.extension.getURL('stop').match(new RegExp("[a-z0-9_-]+://([a-z0-9_-]+)/stop","i"));
-		return (matches[1] == undefined) ? false : matches[1];
-	},
-	
 	/** Retourne une chaîne de caractère (objet json serialisé) qui contient des informations sur la configuration du plugin */
 	getShortSettings: function(settings){
 		if (settings == undefined) {
@@ -382,26 +363,9 @@ AnalyticsHelper = {
 		}
 		var serialized = chunks.join(",");
 		return serialized;
-	},
-	
-	/** Charge google analytics (ga.js) dans le document passé en paramètre */
-	gaLoad: function(doc){
-		var ga = doc.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = 'https://ssl.google-analytics.com/ga.js';
-		var s = doc.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	},
-	
-	/** Identifiant du compte google analytics */
-	gaAccount: 'UA-30512078-5'
+	}
 };
 
-// Chargement google analytics
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', AnalyticsHelper.gaAccount]);
-_gaq.push(['_setCustomVar', 1, 'Version', chrome.runtime.getManifest().version, 2]);
-_gaq.push(['_setCustomVar', 2, 'Settings', AnalyticsHelper.getShortSettings(), 2]);
-_gaq.push(['_trackPageview']);
-AnalyticsHelper.gaLoad(document);
 
 jQuery(function($){
 	// Au chargement de la page, on créé une textarea qui va servir à lire et à écrire dans le presse papier
