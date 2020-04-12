@@ -1,3 +1,7 @@
+My fork of https://github.com/vincepare/CopyAllUrl_Chrome
+
+I removed excessive permissions only leaving tabs and clipboardWrite, but will prompt for clipboardRead if you use paste. Also removed Google Analytics.
+
 Copy All URL for Google Chrome
 ==============================
 
